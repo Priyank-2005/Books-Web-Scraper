@@ -1,23 +1,55 @@
-# property-scraping
-A Python web scraping project that gets real estate data from Magic Bricks
+# E-commerce Competitor Price Monitor
+### *Automating market research so you don't have to.*
 
-DESCRIPTION:
-This is a web scraping project to gather real estate data of Indian cities from popular property websites. I chose to get data for Nagpur, from magicbricks.com. The scraped data is stored in a CSV file in the current working directory.
+![Python](https://img.shields.io/badge/Python-Automation-3776AB)
+![BeautifulSoup](https://img.shields.io/badge/Lib-BeautifulSoup4-green)
+![Pandas](https://img.shields.io/badge/Data-Cleaning-150458)
 
+---
 
+## What is this?
+In e-commerce, pricing is a war. If you check competitor prices manually, you've already lost.
 
-REQUIREMENTS:
-1.	Python selenium library
-2.	The “chromedriver” executable for selenium
+This project is an **automated intelligence bot** that monitors product catalogs (specifically books). It scrapes pricing, availability, and ratings from target websites, creating a structured dataset for analysis. It includes a custom **"Value Algorithm"** that identifies high-rated products that are currently undervalued (low price, high stars).
 
+*Note: This scraper includes "politeness" features (random sleep timers, user-agent rotation) to respect server load and avoid IP bans.*
 
+---
 
-HOW TO USE:
-1.	In any web browser, open magicbricks.com
-2.	Search for properties in the required city.
-3.	Copy the URL of the search results page.
-4.	Change the "url" parameter in the script "get_data.py".
-5.	Run the “get_data.py” script in a python environment to get the property data from     magicbricks.com. This creates a CSV file containing unclean data in the current working directory.
-6.	Run the file “clean_data.py” to get two CSV files: one containing cleaned data, the other containing the top five localities where average price per square foot is highest.
-7.	To scrape data from any other site, open its HTML source, and make the necessary changes in the argument to the  find_element_by_xpath method, in "get_data.py".
+## Key Features
+* **Robust Extraction:** Scrapes Title, Price, Star Rating, and Stock Status across multiple paginated pages.
+* **Regex Data Cleaning:** Automatically strips currency symbols (`£`, `$`) and converts text ratings ("Five") to integers (5).
+* **Value Discovery:** Filters the dataset to find "Hidden Gems" (5-Star items under £20).
+* **Anti-Blocking:** Implements User-Agent headers and time delays to mimic human browsing behavior.
 
+---
+
+## Tech Stack
+* **Python:** Core scripting language.
+* **Requests & BeautifulSoup:** HTML parsing and HTTP requests.
+* **Pandas:** Data cleaning and CSV export.
+* **Regular Expressions (Regex):** Pattern matching for dirty data.
+
+---
+
+## How to Run Locally
+
+### 1. Clone the Repo
+git clone [https://github.com/Priyank-2005/Books-Web-Scraper.git](https://github.com/Priyank-2005/Books-Web-Scraper.git)
+cd Books-Web-Scraper
+
+### 2. Install Dependencies
+pip install -r requirements.txt
+
+### 3. Run the bot
+#### Step 1: Harvest the data
+python get_data.py
+
+#### Step 2: Clean and Analyze
+python clean_data.py
+
+---
+
+## Created by
+
+**Priyank Bohra** | Data Analyst & Python Developer
