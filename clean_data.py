@@ -1,52 +1,40 @@
 import pandas as pd
-import re, math
+import re
 
-df = pd.read_csv("properties.csv")
+print("Starting Data Cleaning...")
 
-p = pd.Series(df.iloc[:, 2].values)
-a = pd.Series(df.iloc[:, 0].values)
-avg = []
+# 1. Load the raw data
+# We use 'encoding="utf-8-sig"' to handle weird Windows characters like Â
+try:
+    df = pd.read_csv("raw_books_data.csv", encoding="utf-8-sig")
+except:
+    df = pd.read_csv("raw_books_data.csv", encoding="latin1")
 
-for i in range(len(p)):
-    p[i] = float(re.sub('[^0-9]', '', p[i]))
+# 2. Nuclear Clean of Price Column
+# This Regex says: "Replace anything that is NOT (^) a digit (\d) or a dot (.) with nothing."
+df['Price_Clean'] = df['Price'].astype(str).str.replace(r'[^\d.]', '', regex=True)
 
-for i in range(len(p)):
-    if p[i] < 5: p[i] = p[i]*100
+# Convert to float (now safe because only numbers exist)
+df['Price_Clean'] = pd.to_numeric(df['Price_Clean'], errors='coerce')
 
-for i in range(len(a)):
-    a[i] = int(re.sub('[^0-9]', '', a[i]))
+# 3. Convert Text Ratings to Numbers
+rating_map = {
+    'One': 1, 'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5
+}
+df['Rating_Num'] = df['Rating'].map(rating_map)
 
-for i in range(len(a)):
-    avg.append(math.ceil(100000*p[i]/a[i]))
+# 4. Create a "Value Score" (Rating / Price)
+# Avoid division by zero issues
+df = df[df['Price_Clean'] > 0] 
+df['Value_Score'] = df['Rating_Num'] / df['Price_Clean']
 
-avg = pd.Series(avg)
-    
-df['localilty'] = df['localilty'].apply(lambda x: x.replace("or Sale", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace("ale", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace("Sale", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace("ale in", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace(",in ", ", "))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace(" in", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace("in ", ""))
-df['localilty'] = df['localilty'].apply(lambda x: x.replace(",", ", "))
+# 5. Filter: Affordable 5-star books (Price < 20)
+top_picks = df[(df['Rating_Num'] == 5) & (df['Price_Clean'] < 20)]
 
-df = df.drop('area', axis=1)
-df = df.drop('price', axis=1)
+# 6. Save the final dataset
+df.to_csv("clean_books_data.csv", index=False)
+top_picks.to_csv("top_value_picks.csv", index=False)
 
-df['Area in sqft'] = a.values
-df['Price in Lac'] = p.values
-df['Price per sqft (in Rs.)'] = avg.values
-
-df = df.sort_values(by=['Price per sqft (in Rs.)'], ascending=False)
-
-# Now select top 5 localities:
-x1 = pd.Series(df.iloc[0, :])
-x2 = pd.Series(df.iloc[16, :])
-x3 = pd.Series(df.iloc[24, :])
-x4 = pd.Series(df.iloc[26, :])
-x5 = pd.Series(df.iloc[27, :])
-
-df_top_5 = pd.DataFrame([x1, x2, x3, x4, x5])
-
-df.to_csv('Prop_cleaned.csv')
-df_top_5.to_csv('top_five.csv')
+print("Data Cleaned Successfully!")
+print(f"Found {len(top_picks)} affordable 5-star books.")
+print("Check the folder for 'top_value_picks.csv'.")
